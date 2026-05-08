@@ -24,7 +24,7 @@ export default function App() {
     <div className={`app ${theme}`}>
       <header className="header">
         <div className="header-left">
-          <span className="logo">🔥 HabitFlow</span>
+          <span className="logo">🔥 HabitTracker</span>
           <span className="date">{todayFormatted}</span>
         </div>
         <div className="header-right">
