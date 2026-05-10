@@ -18,6 +18,16 @@ export function getPastDateKeys(count: number, from = new Date()): DateKey[] {
   });
 }
 
+export function getDateKeyRange(startDateKey: string, count: number): DateKey[] {
+  const start = new Date(`${startDateKey}T00:00:00`);
+
+  return Array.from({ length: count }, (_, index) => {
+    const date = new Date(start);
+    date.setDate(start.getDate() + index);
+    return getDateKey(date);
+  });
+}
+
 export function getPreviousDateKey(dateKey: string): DateKey {
   const date = new Date(`${dateKey}T00:00:00`);
   date.setDate(date.getDate() - 1);
