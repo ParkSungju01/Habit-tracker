@@ -3,8 +3,10 @@ const path = require("path");
 
 const APP_ENTRY = path.join(__dirname, "../dist/index.html");
 const APP_NAME = "Habit Tracker";
+const LEGACY_USER_DATA_DIR = path.join(app.getPath("appData"), "habit-tracker");
 
 app.setName(APP_NAME);
+app.setPath("userData", LEGACY_USER_DATA_DIR);
 
 function createWindow() {
   const win = new BrowserWindow({
