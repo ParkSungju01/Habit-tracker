@@ -2,7 +2,7 @@ import { useState } from "react";
 import type { CSSProperties } from "react";
 import type { Habit } from "../types";
 import { Flame, Trash2, TrendingUp } from "lucide-react";
-import { getDateKey } from "../utils/date";
+import { getDateKey, getDateKeyRange, getDayDifference } from "../utils/date";
 import { buildHabitHeatmapWeeks, computeHabitStats } from "../utils/habitStats";
 
 interface Props {
@@ -14,16 +14,44 @@ interface Props {
 const DAYS_LABEL = ["일", "월", "화", "수", "목", "금", "토"];
 type HabitColorStyle = CSSProperties & { "--habit-color": string };
 
+function getDurationDays(habit: Habit): number | undefined {
+  if (!habit.duration || habit.duration.type === "daily") return undefined;
+  if (habit.duration.type === "week") return 7;
+  if (habit.duration.type === "month") return 30;
+  return habit.duration.days;
+}
+
+function getDdayLabel(habit: Habit, today: string): string | undefined {
+  const durationDays = getDurationDays(habit);
+  if (!durationDays) return undefined;
+
+  const elapsedDays = Math.max(0, getDayDifference(habit.createdAt, today));
+  const remainingDays = Math.max(0, durationDays - elapsedDays);
+
+  return remainingDays === 0 ? "D-Day" : `D-${remainingDays}`;
+}
+
 export function HabitCard({ habit, onToggle, onDelete }: Props) {
   const [confirmDelete, setConfirmDelete] = useState(false);
   const today = getDateKey();
   const stats = computeHabitStats(habit, today);
   const isDoneToday = habit.completedDates.includes(today);
   const weeks = buildHabitHeatmapWeeks();
+  const durationDays = getDurationDays(habit);
+  const ddayLabel = getDdayLabel(habit, today);
+  const periodDates = durationDays
+    ? getDateKeyRange(habit.createdAt, durationDays)
+    : [];
 
   function getIntensity(date: string | null): number {
     if (!date) return -1;
     return habit.completedDates.includes(date) ? 1 : 0;
+  }
+
+  function getPeriodCellState(date: string) {
+    if (habit.completedDates.includes(date)) return "done";
+    if (getDayDifference(today, date) > 0) return "future";
+    return "miss";
   }
 
   return (
@@ -34,7 +62,10 @@ export function HabitCard({ habit, onToggle, onDelete }: Props) {
       <div className="card-header">
         <div className="card-title-row">
           <span className="habit-emoji">{habit.emoji}</span>
-          <span className="habit-name">{habit.name}</span>
+          <div className="habit-title">
+            <span className="habit-name">{habit.name}</span>
+            {ddayLabel && <span className="habit-dday">{ddayLabel}</span>}
+          </div>
         </div>
         <div className="card-actions">
           {confirmDelete ? (
@@ -76,35 +107,51 @@ export function HabitCard({ habit, onToggle, onDelete }: Props) {
         </div>
       </div>
 
-      <div className="heatmap">
-        <div className="heatmap-dow-labels">
-          {DAYS_LABEL.map((d) => (
-            <span key={d} className="dow-label">{d}</span>
-          ))}
-        </div>
-        <div className="heatmap-grid">
-          {weeks.map((week, wi) => (
-            <div key={wi} className="heatmap-col">
-              {week.map((day, di) => {
-                const intensity = getIntensity(day);
-                return (
-                  <div
-                    key={di}
-                    className={`heatmap-cell ${
-                      intensity === -1
-                        ? "empty"
-                        : intensity === 1
-                        ? "done"
-                        : "miss"
-                    } ${day === today ? "today" : ""}`}
-                    title={day ?? ""}
-                  />
-                );
-              })}
+      {durationDays ? (
+        <div className="period-checks">
+          {periodDates.map((date, index) => (
+            <div
+              key={date}
+              className={`period-check ${getPeriodCellState(date)} ${
+                date === today ? "today" : ""
+              }`}
+              title={date}
+            >
+              {index + 1}
             </div>
           ))}
         </div>
-      </div>
+      ) : (
+        <div className="heatmap">
+          <div className="heatmap-dow-labels">
+            {DAYS_LABEL.map((d) => (
+              <span key={d} className="dow-label">{d}</span>
+            ))}
+          </div>
+          <div className="heatmap-grid">
+            {weeks.map((week, wi) => (
+              <div key={wi} className="heatmap-col">
+                {week.map((day, di) => {
+                  const intensity = getIntensity(day);
+                  return (
+                    <div
+                      key={di}
+                      className={`heatmap-cell ${
+                        intensity === -1
+                          ? "empty"
+                          : intensity === 1
+                          ? "done"
+                          : "miss"
+                      } ${day === today ? "today" : ""}`}
+                      title={day ?? ""}
+                    />
+                  );
+                })}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       <button
         className={`checkin-btn ${isDoneToday ? "done" : ""}`}

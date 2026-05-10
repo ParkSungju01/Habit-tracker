@@ -194,10 +194,18 @@ button:focus-visible { outline: 2px solid var(--accent, #6366f1); outline-offset
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 12px;
 }
-.card-title-row { display: flex; align-items: center; gap: 10px; }
+.card-title-row { display: flex; align-items: center; gap: 10px; min-width: 0; }
 .habit-emoji { font-size: 1.5rem; line-height: 1; }
-.habit-name { font-size: 1rem; font-weight: 700; }
+.habit-title { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.habit-name { font-size: 1rem; font-weight: 700; overflow-wrap: anywhere; }
+.habit-dday {
+  width: fit-content;
+  color: var(--habit-color, #6366f1);
+  font-size: 0.75rem;
+  font-weight: 800;
+}
 .card-actions { display: flex; align-items: center; gap: 6px; }
 
 /* Mini Stats */
@@ -247,6 +255,41 @@ button:focus-visible { outline: 2px solid var(--accent, #6366f1); outline-offset
 .heatmap-cell.done { background: var(--habit-color, #6366f1); opacity: 0.85; }
 .heatmap-cell.today.miss { border: 1.5px solid var(--habit-color, #6366f1); }
 .heatmap-cell.today.done { opacity: 1; box-shadow: 0 0 6px var(--habit-color, #6366f1); }
+
+/* Period Checks */
+.period-checks {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(28px, 1fr));
+  gap: 6px;
+  max-height: 132px;
+  overflow-y: auto;
+  padding-right: 2px;
+}
+.period-check {
+  min-width: 0;
+  aspect-ratio: 1;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--surface2);
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+.period-check.done {
+  background: var(--habit-color, #6366f1);
+  border-color: var(--habit-color, #6366f1);
+  color: #fff;
+}
+.period-check.future {
+  opacity: 0.45;
+}
+.period-check.today {
+  border-color: var(--habit-color, #6366f1);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--habit-color, #6366f1) 24%, transparent);
+}
 
 /* Check-in Button */
 .checkin-btn {
@@ -377,6 +420,31 @@ button:focus-visible { outline: 2px solid var(--accent, #6366f1); outline-offset
 }
 .color-btn:hover { transform: scale(1.15); }
 .color-btn.selected { border-color: var(--text); transform: scale(1.15); }
+
+.duration-options {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+.duration-option {
+  background: var(--surface2);
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  color: var(--text);
+  padding: 10px 8px;
+  font-size: 0.88rem;
+  font-weight: 700;
+}
+.duration-option:hover { border-color: var(--text-muted); }
+.duration-option.selected {
+  border-color: #6366f1;
+  background: rgba(99,102,241,0.15);
+  color: var(--text);
+}
+.duration-help {
+  color: var(--text-muted);
+  font-size: 0.78rem;
+}
 
 .submit-btn {
   background: #6366f1;

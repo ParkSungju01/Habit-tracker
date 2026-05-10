@@ -2,6 +2,9 @@ const { app, BrowserWindow } = require("electron");
 const path = require("path");
 
 const APP_ENTRY = path.join(__dirname, "../dist/index.html");
+const APP_NAME = "Habit Tracker";
+
+app.setName(APP_NAME);
 
 function createWindow() {
   const win = new BrowserWindow({
@@ -9,7 +12,7 @@ function createWindow() {
     height: 800,
     minWidth: 900,
     minHeight: 640,
-    title: "Habit Tracker",
+    title: APP_NAME,
     webPreferences: {
       contextIsolation: true,
       nodeIntegration: false,
