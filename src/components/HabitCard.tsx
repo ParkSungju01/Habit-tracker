@@ -1,13 +1,14 @@
 import { useState } from "react";
 import type { CSSProperties } from "react";
 import type { Habit } from "../types";
-import { Flame, Trash2, TrendingUp } from "lucide-react";
+import { Flame, Pencil, Trash2, TrendingUp } from "lucide-react";
 import { getDateKey, getDateKeyRange, getDayDifference } from "../utils/date";
 import { buildHabitHeatmapWeeks, computeHabitStats } from "../utils/habitStats";
 
 interface Props {
   habit: Habit;
   onToggle: () => void;
+  onEdit: () => void;
   onDelete: () => void;
 }
 
@@ -31,7 +32,7 @@ function getDdayLabel(habit: Habit, today: string): string | undefined {
   return remainingDays === 0 ? "D-Day" : `D-${remainingDays}`;
 }
 
-export function HabitCard({ habit, onToggle, onDelete }: Props) {
+export function HabitCard({ habit, onToggle, onEdit, onDelete }: Props) {
   const [confirmDelete, setConfirmDelete] = useState(false);
   const today = getDateKey();
   const stats = computeHabitStats(habit, today);
@@ -82,13 +83,18 @@ export function HabitCard({ habit, onToggle, onDelete }: Props) {
               </button>
             </div>
           ) : (
-            <button
-              className="icon-btn danger"
-              onClick={() => setConfirmDelete(true)}
-              title="삭제"
-            >
-              <Trash2 size={15} />
-            </button>
+            <>
+              <button className="icon-btn" onClick={onEdit} title="수정">
+                <Pencil size={15} />
+              </button>
+              <button
+                className="icon-btn danger"
+                onClick={() => setConfirmDelete(true)}
+                title="삭제"
+              >
+                <Trash2 size={15} />
+              </button>
+            </>
           )}
         </div>
       </div>

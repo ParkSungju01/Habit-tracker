@@ -4,10 +4,13 @@ import type { Habit, HabitDurationType } from "../types";
 import { X } from "lucide-react";
 
 type HabitInput = Omit<Habit, "id" | "createdAt" | "completedDates">;
+type HabitEditInput = Pick<Habit, "name" | "emoji" | "color">;
 
 interface Props {
-  onAdd: (data: HabitInput) => void;
+  onAdd?: (data: HabitInput) => void;
+  onUpdate?: (data: HabitEditInput) => void;
   onClose: () => void;
+  habit?: Habit;
 }
 
 const PRESET_EMOJIS = [
@@ -47,10 +50,11 @@ function getDurationDays(
   return undefined;
 }
 
-export function AddHabitModal({ onAdd, onClose }: Props) {
-  const [name, setName] = useState("");
-  const [emoji, setEmoji] = useState("💪");
-  const [color, setColor] = useState("#6366f1");
+export function AddHabitModal({ onAdd, onUpdate, onClose, habit }: Props) {
+  const isEditing = Boolean(habit);
+  const [name, setName] = useState(habit?.name ?? "");
+  const [emoji, setEmoji] = useState(habit?.emoji ?? "💪");
+  const [color, setColor] = useState(habit?.color ?? "#6366f1");
   const [durationType, setDurationType] =
     useState<HabitDurationType>("daily");
   const [customDaysInput, setCustomDaysInput] = useState("14");
@@ -58,9 +62,19 @@ export function AddHabitModal({ onAdd, onClose }: Props) {
   const handleSubmit = (e: SyntheticEvent) => {
     e.preventDefault();
     if (!name.trim()) return;
+
+    if (isEditing) {
+      onUpdate?.({
+        name: name.trim(),
+        emoji,
+        color,
+      });
+      return;
+    }
+
     const durationDays = getDurationDays(durationType, customDaysInput);
 
-    onAdd({
+    onAdd?.({
       name: name.trim(),
       emoji,
       color,
@@ -80,7 +94,7 @@ export function AddHabitModal({ onAdd, onClose }: Props) {
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
-          <h2>새 습관 추가</h2>
+          <h2>{isEditing ? "습관 수정" : "새 습관 추가"}</h2>
           <button className="icon-btn" onClick={onClose}>
             <X size={20} />
           </button>
@@ -138,42 +152,44 @@ export function AddHabitModal({ onAdd, onClose }: Props) {
             </div>
           </div>
 
-          <div className="form-group">
-            <label>기간</label>
-            <div className="duration-options">
-              {DURATION_OPTIONS.map((option) => (
-                <button
-                  key={option.value}
-                  type="button"
-                  className={`duration-option ${
-                    durationType === option.value ? "selected" : ""
-                  }`}
-                  onClick={() => setDurationType(option.value)}
-                >
-                  {option.label}
-                </button>
-              ))}
+          {!isEditing && (
+            <div className="form-group">
+              <label>기간</label>
+              <div className="duration-options">
+                {DURATION_OPTIONS.map((option) => (
+                  <button
+                    key={option.value}
+                    type="button"
+                    className={`duration-option ${
+                      durationType === option.value ? "selected" : ""
+                    }`}
+                    onClick={() => setDurationType(option.value)}
+                  >
+                    {option.label}
+                  </button>
+                ))}
+              </div>
+              {durationType === "custom" && (
+                <input
+                  type="number"
+                  min={1}
+                  max={365}
+                  step={1}
+                  value={customDaysInput}
+                  onChange={(e) => setCustomDaysInput(e.target.value)}
+                  placeholder="기간을 일 단위로 입력"
+                />
+              )}
+              {selectedDurationDays && (
+                <span className="duration-help">
+                  시작일에는 D-{selectedDurationDays}로 표시됩니다.
+                </span>
+              )}
             </div>
-            {durationType === "custom" && (
-              <input
-                type="number"
-                min={1}
-                max={365}
-                step={1}
-                value={customDaysInput}
-                onChange={(e) => setCustomDaysInput(e.target.value)}
-                placeholder="기간을 일 단위로 입력"
-              />
-            )}
-            {selectedDurationDays && (
-              <span className="duration-help">
-                시작일에는 D-{selectedDurationDays}로 표시됩니다.
-              </span>
-            )}
-          </div>
+          )}
 
           <button type="submit" className="submit-btn" disabled={!canSubmit}>
-            습관 만들기
+            {isEditing ? "수정 완료" : "습관 만들기"}
           </button>
         </form>
       </div>
