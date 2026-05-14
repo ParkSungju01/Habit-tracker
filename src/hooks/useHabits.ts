@@ -28,6 +28,15 @@ export function useHabits() {
     setHabits((prev) => [...prev, newHabit]);
   };
 
+  const updateHabit = (
+    id: string,
+    habit: Pick<Habit, "name" | "emoji" | "color">
+  ) => {
+    setHabits((prev) =>
+      prev.map((h) => (h.id === id ? { ...h, ...habit } : h))
+    );
+  };
+
   const deleteHabit = (id: string) => {
     setHabits((prev) => prev.filter((h) => h.id !== id));
   };
@@ -48,5 +57,5 @@ export function useHabits() {
     );
   };
 
-  return { habits, addHabit, deleteHabit, toggleToday };
+  return { habits, addHabit, updateHabit, deleteHabit, toggleToday };
 }

@@ -5,11 +5,13 @@ import { AddHabitModal } from "./components/AddHabitModal";
 import { StatsBar } from "./components/StatsBar";
 import { Plus } from "lucide-react";
 import { getDateKey } from "./utils/date";
+import type { Habit } from "./types";
 import "./App.css";
 
 export default function App() {
-  const { habits, addHabit, deleteHabit, toggleToday } = useHabits();
+  const { habits, addHabit, updateHabit, deleteHabit, toggleToday } = useHabits();
   const [showModal, setShowModal] = useState(false);
+  const [editingHabit, setEditingHabit] = useState<Habit | null>(null);
   const [theme, setTheme] = useState<"dark" | "light">("dark");
 
   const today = getDateKey();
@@ -62,6 +64,7 @@ export default function App() {
                 key={habit.id}
                 habit={habit}
                 onToggle={() => toggleToday(habit.id)}
+                onEdit={() => setEditingHabit(habit)}
                 onDelete={() => deleteHabit(habit.id)}
               />
             ))}
@@ -76,6 +79,17 @@ export default function App() {
             setShowModal(false);
           }}
           onClose={() => setShowModal(false)}
+        />
+      )}
+
+      {editingHabit && (
+        <AddHabitModal
+          habit={editingHabit}
+          onUpdate={(data) => {
+            updateHabit(editingHabit.id, data);
+            setEditingHabit(null);
+          }}
+          onClose={() => setEditingHabit(null)}
         />
       )}
     </div>
