@@ -37,7 +37,7 @@ export function HabitCard({ habit, onToggle, onEdit, onDelete }: Props) {
   const today = getDateKey();
   const stats = computeHabitStats(habit, today);
   const isDoneToday = habit.completedDates.includes(today);
-  const weeks = buildHabitHeatmapWeeks();
+  const weeks = buildHabitHeatmapWeeks(112);
   const durationDays = getDurationDays(habit);
   const ddayLabel = getDdayLabel(habit, today);
   const periodDates = durationDays
