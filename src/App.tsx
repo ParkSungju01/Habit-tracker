@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useHabits } from "./hooks/useHabits";
 import { HabitCard } from "./components/HabitCard";
 import { AddHabitModal } from "./components/AddHabitModal";
@@ -8,11 +8,28 @@ import { getDateKey } from "./utils/date";
 import type { Habit } from "./types";
 import "./App.css";
 
+type Theme = "dark" | "light";
+
+const THEME_STORAGE_KEY = "habit-tracker-theme";
+
+function getStoredTheme(): Theme {
+  try {
+    const storedTheme = localStorage.getItem(THEME_STORAGE_KEY);
+    return storedTheme === "light" || storedTheme === "dark" ? storedTheme : "dark";
+  } catch {
+    return "dark";
+  }
+}
+
 export default function App() {
   const { habits, addHabit, updateHabit, deleteHabit, toggleToday } = useHabits();
   const [showModal, setShowModal] = useState(false);
   const [editingHabit, setEditingHabit] = useState<Habit | null>(null);
-  const [theme, setTheme] = useState<"dark" | "light">("dark");
+  const [theme, setTheme] = useState<Theme>(getStoredTheme);
+
+  useEffect(() => {
+    localStorage.setItem(THEME_STORAGE_KEY, theme);
+  }, [theme]);
 
   const today = getDateKey();
   const todayFormatted = new Date().toLocaleDateString("ko-KR", {
